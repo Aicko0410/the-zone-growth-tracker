@@ -172,5 +172,41 @@ function render(){
 }
 render();
 </script>
+ 
+<section class="card">
+  <h2>💾 Mijn back-up</h2>
+  <p>Bewaar je TikTok-statistieken op je iPhone.</p>
+  <button onclick="downloadBackup()">
+    Back-up downloaden
+  </button>
+</section>
+
+<script>
+function downloadBackup() {
+  const saved = localStorage.getItem("theZoneTrackerV2");
+
+  if (!saved) {
+    alert("Er zijn nog geen gegevens opgeslagen.");
+    return;
+  }
+
+  const blob = new Blob([saved], {
+    type: "application/json"
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = "the-zone-backup.json";
+
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+</script>
+
 </body>
 </html>
