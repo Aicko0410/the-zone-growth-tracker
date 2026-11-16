@@ -225,6 +225,22 @@ render();
   <button onclick="downloadBackup()">
     Back-up downloaden
   </button>
+ 
+<hr style="margin:25px 0;border:1px solid #343440">
+
+<p>📂 Een eerdere back-up terugzetten</p>
+
+<input
+  type="file"
+  id="backupFile"
+  accept=".json,application/json"
+  style="margin:15px 0"
+>
+
+<button onclick="restoreBackup()">
+  Back-up herstellen
+</button>
+
 </section>
 
 <script>
@@ -252,6 +268,36 @@ function downloadBackup() {
 
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+ 
+async function restoreBackup() {
+  const file = document.getElementById("backupFile").files[0];
+
+  if (!file) {
+    alert("Selecteer eerst een back-upbestand.");
+    return;
+  }
+
+  try {
+    const content = await file.text();
+    const data = JSON.parse(content);
+
+    if (!data || typeof data !== "object" || Array.isArray(data)) {
+      throw new Error("Ongeldig bestand");
+    }
+
+    if (!confirm("Huidige gegevens vervangen door deze back-up?")) {
+      return;
+    }
+
+    localStorage.setItem("theZoneTrackerV2", content);
+    alert("Back-up hersteld!");
+    location.reload();
+
+  } catch (error) {
+    alert("Herstellen mislukt. Controleer het bestand.");
+  }
+}
+
 </script>
 
 </body>
