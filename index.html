@@ -130,6 +130,46 @@ function removeVideo(i){
  if(!confirm("Deze video verwijderen?"))return;
  videos.splice(i,1);save();render();
 }
+ 
+function editVideo(i) {
+  const v = videos[i];
+
+  const name = prompt("Titel van video:", v.name);
+  if (name === null) return;
+
+  const views = prompt("Aantal views:", v.views);
+  if (views === null) return;
+
+  const likes = prompt("Aantal likes:", v.likes);
+  if (likes === null) return;
+
+  const comments = prompt("Aantal reacties:", v.comments);
+  if (comments === null) return;
+
+  if (
+    !name.trim() ||
+    [views, likes, comments].some(
+      n => n.trim() === "" ||
+      !Number.isFinite(Number(n)) ||
+      Number(n) < 0
+    )
+  ) {
+    alert("Vul geldige gegevens in.");
+    return;
+  }
+
+  videos[i] = {
+    ...v,
+    name: name.trim(),
+    views: Number(views),
+    likes: Number(likes),
+    comments: Number(comments)
+  };
+
+  save();
+  render();
+}
+
 function render(){
  document.getElementById("followers").textContent=fmt(followers);
  document.getElementById("progress").style.width=Math.min(100,followers/1000*100)+"%";
@@ -163,6 +203,12 @@ function render(){
   title.textContent=v.name;
   const info=document.createElement("p");
   info.textContent=v.type+" · "+fmt(v.views)+" views · "+fmt(v.likes)+" likes · "+fmt(v.comments)+" reacties";
+ 
+  const editBtn = document.createElement("button");
+  editBtn.textContent = "✏️ Bewerken";
+  editBtn.onclick = () => editVideo(i);
+  item.appendChild(editBtn);
+
   const btn=document.createElement("button");
   btn.textContent="Verwijderen";
   btn.onclick=()=>removeVideo(i);
