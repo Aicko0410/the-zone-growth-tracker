@@ -2,45 +2,175 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>The Zone | Growth Tracker</title>
-  <style>
-    body {
-      background: #101015;
-      color: white;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 35px 15px;
-    }
-    h1 { color: #ff354f; }
-    .card {
-      background: #20202a;
-      padding: 25px;
-      border-radius: 16px;
-      margin: 20px auto;
-      max-width: 400px;
-    }
-    .number {
-      font-size: 36px;
-      font-weight: bold;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Zone | Growth Tracker</title>
+<style>
+:root{color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:#0d0e14;color:#fff;font-family:Arial,sans-serif;padding:20px}
+header{text-align:center;padding:25px 0}
+h1{color:#ff405b;font-size:32px;margin:0}
+h2{font-size:19px}
+p,small{color:#a9aab5}
+.card{background:#1c1e29;border:1px solid #30313e;border-radius:18px;padding:20px;margin:14px 0}
+.number{font-size:32px;font-weight:bold;margin:10px 0}
+.red{color:#ff405b}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid .card{margin:0}
+input,select,button{width:100%;padding:13px;border-radius:10px;font-size:16px;margin:7px 0}
+input,select{background:#11131b;border:1px solid #424453;color:white}
+button{background:#ff405b;color:white;border:0;font-weight:bold;cursor:pointer}
+.bar{height:12px;background:#363846;border-radius:20px;overflow:hidden}
+.fill{height:100%;background:#ff405b;width:0%}
+.video{border-bottom:1px solid #383a45;padding:12px 0}
+.video:last-child{border:0}
+.muted{color:#a9aab5;font-size:13px}
+</style>
 </head>
 <body>
-  <h1>🎯 THE ZONE</h1>
-  <h2>Growth Tracker</h2>
 
-  <div class="card">
-    <p>ROAD TO 1K FOLLOWERS</p>
-    <div class="number">1000 🎯</div>
-  </div>
+<header>
+<h1>🎯 THE ZONE</h1>
+<p>GROWTH TRACKER</p>
+</header>
 
-  <div class="card">
-    <p>Gemiddelde views</p>
-    <div class="number">350</div>
-  </div>
+<section class="card">
+<h2>🚀 ROAD TO 1K</h2>
+<div class="number"><span id="followers">0</span> / 1000</div>
+<div class="bar"><div class="fill" id="progress"></div></div>
+<p id="remaining"></p>
+<input id="followerInput" type="number" min="0" placeholder="Huidige volgers">
+<button onclick="saveFollowers()">Volgers opslaan</button>
+</section>
 
-  <p>THE ROAD TO PRO STARTS HERE.</p>
+<div class="grid">
+<div class="card">
+<small>Gem. views</small>
+<div class="number red" id="avg">0</div>
+</div>
+<div class="card">
+<small>Totaal views</small>
+<div class="number" id="total">0</div>
+</div>
+<div class="card">
+<small>Video's</small>
+<div class="number" id="count">0</div>
+</div>
+<div class="card">
+<small>Engagement</small>
+<div class="number red" id="engagement">0%</div>
+</div>
+</div>
+
+<section class="card">
+<h2>➕ TikTok toevoegen</h2>
+<input id="name" placeholder="Titel van je video">
+<select id="type">
+<option>Checkout Challenge</option>
+<option>180 Challenge</option>
+<option>TheRoad2Pro</option>
+<option>Match Highlights</option>
+<option>Andere</option>
+</select>
+<input id="views" type="number" min="0" placeholder="Views">
+<input id="likes" type="number" min="0" placeholder="Likes">
+<input id="comments" type="number" min="0" placeholder="Reacties">
+<button onclick="addVideo()">Video toevoegen</button>
+</section>
+
+<section class="card">
+<h2>🏆 Beste contenttype</h2>
+<p id="best">Voeg eerst video's toe.</p>
+</section>
+
+<section class="card">
+<h2>🎬 Mijn video's</h2>
+<div id="videos"></div>
+</section>
+
+<script>
+const key="theZoneTrackerV2";
+let data;
+try{
+ data=JSON.parse(localStorage.getItem(key))||{};
+}catch(e){data={}}
+let followers=Number(data.followers)||0;
+let videos=Array.isArray(data.videos)?data.videos:[];
+
+function save(){
+ localStorage.setItem(key,JSON.stringify({followers,videos}));
+}
+function fmt(n){
+ return Math.round(n).toLocaleString("nl-BE");
+}
+function saveFollowers(){
+ const n=Number(document.getElementById("followerInput").value);
+ if(!Number.isFinite(n)||n<0){
+  alert("Vul een geldig aantal in.");return;
+ }
+ followers=n;save();render();
+}
+function addVideo(){
+ const name=document.getElementById("name").value.trim();
+ const type=document.getElementById("type").value;
+ const views=Number(document.getElementById("views").value);
+ const likes=Number(document.getElementById("likes").value);
+ const comments=Number(document.getElementById("comments").value);
+ if(!name||[views,likes,comments].some(n=>!Number.isFinite(n)||n<0)){
+  alert("Vul alle gegevens correct in.");return;
+ }
+ videos.push({name,type,views,likes,comments});
+ save();render();
+ ["name","views","likes","comments"].forEach(id=>{
+  document.getElementById(id).value="";
+ });
+}
+function removeVideo(i){
+ if(!confirm("Deze video verwijderen?"))return;
+ videos.splice(i,1);save();render();
+}
+function render(){
+ document.getElementById("followers").textContent=fmt(followers);
+ document.getElementById("progress").style.width=Math.min(100,followers/1000*100)+"%";
+ document.getElementById("remaining").textContent=
+ followers>=1000?"🎉 Doel bereikt!":fmt(1000-followers)+" volgers te gaan!";
+ const total=videos.reduce((s,v)=>s+v.views,0);
+ const interactions=videos.reduce((s,v)=>s+v.likes+v.comments,0);
+ document.getElementById("total").textContent=fmt(total);
+ document.getElementById("avg").textContent=fmt(videos.length?total/videos.length:0);
+ document.getElementById("count").textContent=videos.length;
+ document.getElementById("engagement").textContent=
+ (total?interactions/total*100:0).toFixed(1)+"%";
+ const groups={};
+ videos.forEach(v=>{
+  if(!groups[v.type])groups[v.type]={views:0,count:0};
+  groups[v.type].views+=v.views;
+  groups[v.type].count++;
+ });
+ const ranked=Object.entries(groups).sort((a,b)=>
+ b[1].views/b[1].count-a[1].views/a[1].count);
+ document.getElementById("best").textContent=ranked.length?
+ ranked[0][0]+" — gemiddeld "+fmt(ranked[0][1].views/ranked[0][1].count)+" views":
+ "Voeg eerst video's toe.";
+ const list=document.getElementById("videos");
+ list.replaceChildren();
+ [...videos].reverse().forEach((v,j)=>{
+  const i=videos.length-1-j;
+  const item=document.createElement("div");
+  item.className="video";
+  const title=document.createElement("strong");
+  title.textContent=v.name;
+  const info=document.createElement("p");
+  info.textContent=v.type+" · "+fmt(v.views)+" views · "+fmt(v.likes)+" likes · "+fmt(v.comments)+" reacties";
+  const btn=document.createElement("button");
+  btn.textContent="Verwijderen";
+  btn.onclick=()=>removeVideo(i);
+  item.append(title,info,btn);
+  list.appendChild(item);
+ });
+}
+render();
+</script>
 </body>
 </html>
