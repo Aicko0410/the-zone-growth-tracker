@@ -1,0 +1,27 @@
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Zone | TikTok Login</title>
+</head>
+<body style="background:#0d0e14;color:white;text-align:center;font-family:Arial;padding:40px">
+  <h1 style="color:#ff405b">🎯 THE ZONE</h1>
+  <h2>TikTok-verbinding</h2>
+  <p id="status">Inlogresultaat controleren...</p>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const status = document.getElementById("status");
+
+    if (params.has("error")) {
+      status.textContent = "TikTok-inloggen is niet gelukt.";
+    } else if (params.has("code")) {
+      status.textContent =
+        "TikTok heeft toestemming gegeven. De veilige koppeling moet nog worden voltooid.";
+    } else {
+      status.textContent = "Nog geen TikTok-inlogresultaat ontvangen.";
+    }
+  </script>
+</body>
+</html>
