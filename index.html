@@ -204,15 +204,17 @@ function render(){
   const info=document.createElement("p");
   info.textContent=v.type+" · "+fmt(v.views)+" views · "+fmt(v.likes)+" likes · "+fmt(v.comments)+" reacties";
  
+
   const editBtn = document.createElement("button");
   editBtn.textContent = "✏️ Bewerken";
   editBtn.onclick = () => editVideo(i);
-  item.appendChild(editBtn);
 
-  const btn=document.createElement("button");
-  btn.textContent="Verwijderen";
-  btn.onclick=()=>removeVideo(i);
-  item.append(title,info,btn);
+  const btn = document.createElement("button");
+  btn.textContent = "Verwijderen";
+  btn.onclick = () => removeVideo(i);
+
+  item.append(title, info, editBtn, btn);
+ 
   list.appendChild(item);
  });
 }
